@@ -3,6 +3,10 @@ from selenium.webdriver.common.by import By
 import time
 from datetime import datetime
 from getpass import getpass
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
+
 
 
 def calculate_time(hrs_d,mins_d):
@@ -29,37 +33,67 @@ def get_input_time():
 
 
 
-def login(email, password):
+def login(email, password, contact, message):
 
-    chrome_options = webdriver.ChromeOptions()
-    prefs = {"profile.default_content_setting_values.notifications" : 2}
-    chrome_options.add_experimental_option("prefs",prefs)
-    test_driver = webdriver.Chrome(chrome_options=chrome_options)
-    test_driver.get("https://www.facebook.com/messages/t/")
+    """
+    This function login into your facebook account.
+    DiSCLAMER :: This function only excess the message sending part only.
+    Args: 
+        email(str): Facebook email/username
+        password(str): Facebook password 
+        contact(str): This is the friend name to whom the message should be sent
+            Note :: 
+            1) Contact should be name of only one person.
+            2) Top most contact from search list is selected for sending message
 
-    email_input = test_driver.find_element(By.ID,"email")
-    password_input = test_driver.find_element(By.ID,"pass")
-    login_button = test_driver.find_element(By.ID,"loginbutton")
+        message(str): This is the message that is to be sent.
 
-    email_input.send_keys(email)
-    password_input.send_keys(password)
-    login_button.click()
+    """
+
+    # Opening chrome browser and surfing to facebook messaging page
+    try:
+        chrome_options = webdriver.ChromeOptions()
+        prefs = {"profile.default_content_setting_values.notifications" : 2}
+        chrome_options.add_experimental_option("prefs",prefs)
+        test_driver = webdriver.Chrome(chrome_options=chrome_options)
+        test_driver.get("https://www.facebook.com/messages/t/")
+    
+    except TimeoutException:
+        print("Error Loading the webpage")
+    finally:
+
+        email_input = test_driver.find_element(By.ID,"email")
+        password_input = test_driver.find_element(By.ID,"pass")
+        login_button = test_driver.find_element(By.ID,"loginbutton")
+        
+
+        email_input.send_keys(email)
+        password_input.send_keys(password)
+        login_button.click()
 
 
-    time.sleep(5)
-    Contact=str(input("Enter Name of friend to send message: \n"))
-    search_input=test_driver.find_element(By.XPATH,'/html/body/div[1]/div/div[1]/div/div[5]/div/div/div[3]/div/div/div[1]/div[1]/div[1]/div/div/div/div/div[2]/div/div/div/div/div/label/input')
-    search_input.send_keys(Contact) 
+    # Search name for the contact
+    try:
+        search_input= WebDriverWait(test_driver,1000).until(EC.presence_of_element_located((By.XPATH,'/html/body/div[1]/div/div[1]/div/div[5]/div/div/div[3]/div/div/div[1]/div[1]/div[1]/div/div/div/div/div[2]/div/div/div/div/div/label/input'))) 
+        # search_input= test_driver.find_element(By.XPATH,'/html/body/div[1]/div/div[1]/div/div[5]/div/div/div[3]/div/div/div[1]/div[1]/div[1]/div/div/div/div/div[2]/div/div/div/div/div/label/input')
+    except TimeoutException:
+        print("Error getting friend name from user")
+    finally:
+        search_input.send_keys(contact) 
 
-    time.sleep(5)
-    first_account = test_driver.find_element(By.XPATH,'/html/body/div[1]/div/div[1]/div/div[5]/div/div/div[3]/div/div/div[2]/div/div/div[1]/div[1]/div/div[1]/ul/li[1]/ul/li[2]/div/a/div')
-    first_account.click()
+        try:
+            first_account =WebDriverWait(test_driver,10).until(EC.presence_of_element_located((By.XPATH,'/html/body/div[1]/div/div[1]/div/div[5]/div/div/div[3]/div/div/div[2]/div/div/div[1]/div[1]/div/div[1]/ul/li[1]/ul/li[2]/div/a/div'))) 
+        finally:
+            first_account.click()
 
 
-    time.sleep(5)
-    message = str(input("Enter Message: \n"))
-    message_text_box = test_driver.find_element(By.CSS_SELECTOR,'.notranslate')
-    message_text_box.send_keys(message)
+    # Enter message to the text box
+    try:
+        message_text_box = WebDriverWait(test_driver,1000).until(EC.presence_of_element_located((By.CSS_SELECTOR,'.notranslate'))) 
+        # message_text_box = test_driver.find_element(By.CSS_SELECTOR,'.notranslate')
+    finally:
+        message_text_box.send_keys(message)
+
 
     time.sleep(2)
     inputTime = get_input_time()
@@ -77,6 +111,7 @@ def login(email, password):
             break
 
 
+# Press send button
 def press_send_button(test_driver):
     send_button = test_driver.find_element(By.XPATH,'/html/body/div[1]/div/div[1]/div/div[5]/div/div/div[3]/div/div/div[1]/div[1]/div[2]/div/div/div/div/div/div/div[2]/div/div/div[2]/div/span[2]/div')
     send_button.click()
@@ -87,7 +122,9 @@ def press_send_button(test_driver):
 def get_user_login_data():
     email = input("Enter your username: ")
     password = getpass("Enter your password: ")
-    login(email,password)
+    friendName = input("Enter your Friend's Name to send Message: ")
+    message = input("Enter your message to send : ")
+    login(email,password,friendName,message)
 
-    
+get_user_login_data()
 
