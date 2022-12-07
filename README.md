@@ -14,4 +14,7 @@ Selenium
 
 
 <h3> Contribution Guideliness</h3>
-<li>Hello</li>
+<li>Everyone is requested to have proper discussion over the repo discussion section.</li>
+<li>Main theme of the project shouldn't deviated.</li>
+<li>Problems and features updates are explained over the Issues section.</li>
+<li>Please do share and contribute it to the repo with full confidence</li>
