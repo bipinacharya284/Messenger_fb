@@ -11,3 +11,7 @@ Selenium
 
 <h3>Who can contribute?</h3>
 <p>Anyone who is interested to contribute in my project is free to contribute openly by just forking the repo.</p>
+
+
+<h3> Contribution Guideliness</h3>
+<li>Hello</li>
